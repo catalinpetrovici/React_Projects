@@ -1,5 +1,5 @@
 # React Medium Projects
 
-## 1 - Cocktails API
+## 1 - Search Filter Cocktails API
 
 -- // --

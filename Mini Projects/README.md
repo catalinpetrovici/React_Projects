@@ -1,5 +1,17 @@
 # React Mini Projects
 
+## 17 - Dark Mode Toggle - Moment JS
+
+-- // --
+
+## 16 - Random User Generator - API
+
+-- // --
+
+## 15 - Markdown Preview
+
+-- // --
+
 ## 14 - Shopping Cart
 
 -- // --

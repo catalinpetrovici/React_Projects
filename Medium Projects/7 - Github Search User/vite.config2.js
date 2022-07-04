@@ -1,34 +1,21 @@
-import babel from '@rollup/plugin-babel';
-import commonjs from '@rollup/plugin-commonjs';
-import react from '@vitejs/plugin-react';
-import resolve from '@rollup/plugin-node-resolve';
-
-import fs from 'fs';
-import viteCompression from 'vite-plugin-compression';
-
-import { join } from 'path';
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { join } from 'path';
+import fs from 'fs';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  json: {
-    stringify: true,
-  },
   build: {
+    chunkSizeWarningLimit: 3000,
     rollupOptions: {
-      plugins: [
-        resolve(),
-        // commonjs(),
-        // viteCompression(),
-        babel({ babelHelpers: 'bundled' }),
-      ],
       output: {
-        assetFileNames: 'assets/[name][extname]',
-        entryFileNames: (a) => (a.name.endsWith('.js') ? a.name : '[name].js'),
-        chunkFileNames: (a) => (a.name.endsWith('.js') ? a.name : '[name].js'),
         manualChunks(id) {
-          if (id.includes('node_modules')) {
+          if (id.includes('semantic-ui')) {
+            return 'semantic';
+          } else if (id.includes('react-dom')) {
+            return 'react';
+          } else if (id.includes('node_modules')) {
             const [, module] = /node_modules\/(@?[a-z0-9-]+?[a-z0-9-]+)/.exec(
               id
             );

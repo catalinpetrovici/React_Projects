@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState, useCallback } from 'react';
 
 import type { Staff } from '../../../../../shared/types';
 import { axiosInstance } from '../../../axiosInstance';
@@ -22,8 +22,15 @@ export function useStaff(): UseStaff {
   // for filtering staff by treatment
   const [filter, setFilter] = useState('all');
 
+  const selectFn = useCallback(
+    (unfilteredStaff) => filterByTreatment(unfilteredStaff, filter),
+    [filter],
+  );
+
   const fallback = [];
-  const { data = fallback } = useQuery(queryKeys.treatments, getStaff);
+  const { data = fallback } = useQuery(queryKeys.treatments, getStaff, {
+    select: filter !== 'all' ? selectFn : undefined,
+  });
 
   return { staff: data, filter, setFilter };
 }

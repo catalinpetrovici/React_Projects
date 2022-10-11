@@ -21,10 +21,13 @@ async function getUserAppointments(
 export function useUserAppointments(): Appointment[] {
   const { user } = useUser();
   
-  const fallback:Appointment[] = [];
-  useQuery(queryKeys.user,() => getUserAppointments(user), {
+  const fallback: Appointment[] = [];
+  const { data: userAppointments = fallback} = useQuery( 
+    'user-appointments',
+    () => getUserAppointments(user), 
+    {
     enabled: !!user,
-    onSuccess: (data) => setUser(data)
-  })
-  return [];
+    },
+  );
+  return userAppointments;
 }

@@ -1,4 +1,4 @@
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useQuery, useQueryClient } from 'react-query'
 import { useState } from 'react'
 
@@ -11,15 +11,38 @@ import {
   setStoredUser,
 } from '../../../user-storage';
 
-async function getUser(user: User | null): Promise<User | null> {
+interface AxiosResponseWithCancel extends AxiosResponse {
+  cancel: () => void;
+}
+
+// query function
+async function getUser(user: User | null): Promise<AxiosResponseWithCancel> {
+
+  const source = axios.CancelToken.source();
+
   if (!user) return null;
-  const { data }: AxiosResponse<{ user: User }> = await axiosInstance.get(
+  // const { data }: AxiosResponse<{ user: User }> = await axiosInstance.get(
+  //   `/user/${user.id}`,
+  //   {
+  //     headers: getJWTHeader(user),
+  //   },
+  // );
+
+  const axiosResponse: AxiosResponseWithCancel = await axiosInstance.get(
     `/user/${user.id}`,
     {
       headers: getJWTHeader(user),
+      cancelToken: source.token,
     },
   );
-  return data.user;
+
+  axiosResponse.cancel = () => {
+    source.cancel();
+  }
+
+
+
+  return axiosResponse;
 }
 
 interface UseUser {
@@ -35,7 +58,7 @@ export function useUser(): UseUser {
   // call useQuery to update user data from server
   useQuery(queryKeys.user, () => getUser(user), {
     enabled:!!user,
-    onSuccess: (data) => setUser(data)
+    onSuccess: (axiosResponse) => setUser(axiosResponse.data.user)
   })
 
   // meant to be called from useAuth
@@ -62,7 +85,7 @@ export function useUser(): UseUser {
     queryClient.setQueryData(queryKeys.user, null);
 
     // remove user appointments query
-    queryClient.removeQueries('user-appointments');
+    queryClient.removeQueries([queryKeys.appointments, queryKeys.user]);
   }
 
   return { user, updateUser, clearUser };
